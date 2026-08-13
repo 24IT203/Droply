@@ -1,686 +1,403 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProfilePage extends StatefulWidget {
-  // ==========================================================
-  // DARK MODE - RECEIVED FROM MAIN.DART
-  // ==========================================================
+import '../providers/theme_provider.dart';
+import '../providers/user_provider.dart';
 
-  final bool isDarkMode;
+class ProfilePage extends ConsumerWidget {
+  const ProfilePage({super.key});
 
-  final ValueChanged<bool> onDarkModeChanged;
-
-  const ProfilePage({
-    super.key,
-    required this.isDarkMode,
-    required this.onDarkModeChanged,
-  });
+  static const Color primaryColor =
+  Color(0xFFFF5A5F);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final theme =
+    Theme.of(context);
 
-class _ProfilePageState extends State<ProfilePage> {
+    final colors =
+        theme.colorScheme;
 
-  // ==========================================================
-  // COLORS
-  // ==========================================================
+    final user =
+    ref.watch(userProvider);
 
-  static const Color primaryColor = Color(0xFFFF5A5F);
-
-  static const Color darkColor = Color(0xFF202124);
-
-  static const Color creamColor = Color(0xFFFFF8F3);
-
-  static const Color lightCoral = Color(0xFFFFE8E8);
-
-  static const Color textColor = Color(0xFF555555);
-
-  // ==========================================================
-  // DAY 4 - STATE VARIABLES
-  // ==========================================================
-
-  bool notificationsEnabled = true;
-
-  bool saveDeliveryHistory = true;
-
-  bool promotionalNotifications = false;
-
-  double notificationVolume = 60;
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
-
-  @override
-  Widget build(BuildContext context) {
-
-    final bool darkMode = widget.isDarkMode;
-
-    final Color backgroundColor =
-    darkMode
-        ? const Color(0xFF121212)
-        : creamColor;
-
-    final Color cardColor =
-    darkMode
-        ? const Color(0xFF1E1E1E)
-        : Colors.white;
-
-    final Color headingColor =
-    darkMode
-        ? Colors.white
-        : darkColor;
-
-    final Color bodyTextColor =
-    darkMode
-        ? Colors.white70
-        : textColor;
+    final isDarkMode =
+        ref.watch(themeProvider) ==
+            ThemeMode.dark;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor:
+      theme.scaffoldBackgroundColor,
 
-      // ======================================================
+      // ========================================================
       // APP BAR
-      // ======================================================
+      // ========================================================
 
       appBar: AppBar(
-        backgroundColor: primaryColor,
+        backgroundColor:
+        primaryColor,
+
+        foregroundColor:
+        Colors.white,
 
         elevation: 0,
 
         title: const Text(
           'My Profile',
+
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight:
+            FontWeight.bold,
           ),
         ),
-
-        actions: [
-          IconButton(
-            onPressed: () {},
-
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: Colors.white,
-            ),
-          ),
-        ],
       ),
 
-      // ======================================================
-      // PROFILE CONTENT
-      // ======================================================
+      // ========================================================
+      // BODY
+      // ========================================================
 
-      body: ListView(
-        physics: const ClampingScrollPhysics(),
+      body: SingleChildScrollView(
+        padding:
+        const EdgeInsets.all(20),
 
-        padding: const EdgeInsets.all(20),
-
-        children: [
-
-          // ==================================================
-          // PROFILE HEADER
-          // ==================================================
-
-          Container(
-            padding: const EdgeInsets.all(20),
-
-            decoration: BoxDecoration(
-              color: cardColor,
-
-              borderRadius:
-              BorderRadius.circular(22),
-
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(
-                    darkMode ? 0.3 : 0.05,
-                  ),
-
-                  blurRadius: 10,
-
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 20,
             ),
 
-            child: Column(
-              children: [
-
-                // PROFILE IMAGE
-                Container(
-                  width: 105,
-                  height: 105,
-
-                  decoration: BoxDecoration(
-                    color: lightCoral,
-
-                    shape: BoxShape.circle,
-
-                    border: Border.all(
-                      color: primaryColor,
-                      width: 3,
-                    ),
-                  ),
-
-                  child: const Icon(
-                    Icons.person,
-                    size: 62,
-                    color: primaryColor,
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                Text(
-                  'Ananya R',
-
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: headingColor,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  'ananya@example.com',
-
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: bodyTextColor,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: lightCoral,
-
-                    borderRadius:
-                    BorderRadius.circular(20),
-                  ),
-
-                  child: const Text(
-                    'Food Lover 🍔',
-
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // ==================================================
-          // ACCOUNT
-          // ==================================================
-
-          Text(
-            'Account',
-
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: headingColor,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          profileOption(
-            Icons.person_outline,
-            'Personal Information',
-            'Update your name and email',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          profileOption(
-            Icons.location_on_outlined,
-            'Saved Addresses',
-            'Manage your delivery locations',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          profileOption(
-            Icons.payment_outlined,
-            'Payment Methods',
-            'Manage cards and payment options',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          const SizedBox(height: 28),
-
-          // ==================================================
-          // NOTIFICATION SETTINGS
-          // ==================================================
-
-          Text(
-            'Notifications',
-
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: headingColor,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Container(
-            decoration: BoxDecoration(
-              color: cardColor,
-
-              borderRadius:
-              BorderRadius.circular(20),
-            ),
-
-            child: Column(
-              children: [
-
-                // ==================================================
-                // ORDER NOTIFICATIONS - SWITCH
-                // ==================================================
-
-                SwitchListTile(
-                  value: notificationsEnabled,
-
-                  activeColor: primaryColor,
-
-                  title: Text(
-                    'Order Notifications',
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: headingColor,
-                    ),
-                  ),
-
-                  subtitle: Text(
-                    'Get updates about your orders',
-
-                    style: TextStyle(
-                      color: bodyTextColor,
-                    ),
-                  ),
-
-                  secondary: const Icon(
-                    Icons.notifications_none,
-                    color: primaryColor,
-                  ),
-
-                  onChanged: (value) {
-                    setState(() {
-                      notificationsEnabled = value;
-                    });
-                  },
-                ),
-
-                const Divider(
-                  height: 1,
-                ),
-
-                // ==================================================
-                // DELIVERY HISTORY - CHECKBOX
-                // ==================================================
-
-                CheckboxListTile(
-                  value: saveDeliveryHistory,
-
-                  activeColor: primaryColor,
-
-                  title: Text(
-                    'Save Delivery History',
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: headingColor,
-                    ),
-                  ),
-
-                  subtitle: Text(
-                    'Keep your previous orders available',
-
-                    style: TextStyle(
-                      color: bodyTextColor,
-                    ),
-                  ),
-
-                  secondary: const Icon(
-                    Icons.history,
-                    color: primaryColor,
-                  ),
-
-                  onChanged: (value) {
-                    setState(() {
-                      saveDeliveryHistory =
-                          value ?? false;
-                    });
-                  },
-                ),
-
-                const Divider(
-                  height: 1,
-                ),
-
-                // ==================================================
-                // PROMOTIONS - CHECKBOX
-                // ==================================================
-
-                CheckboxListTile(
-                  value: promotionalNotifications,
-
-                  activeColor: primaryColor,
-
-                  title: Text(
-                    'Offers & Promotions',
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: headingColor,
-                    ),
-                  ),
-
-                  subtitle: Text(
-                    'Receive discounts and special offers',
-
-                    style: TextStyle(
-                      color: bodyTextColor,
-                    ),
-                  ),
-
-                  secondary: const Icon(
-                    Icons.local_offer_outlined,
-                    color: primaryColor,
-                  ),
-
-                  onChanged: (value) {
-                    setState(() {
-                      promotionalNotifications =
-                          value ?? false;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // ==================================================
-          // NOTIFICATION VOLUME
-          // ==================================================
-
-          Text(
-            'Notification Sound',
-
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: headingColor,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Container(
-            padding: const EdgeInsets.all(18),
-
-            decoration: BoxDecoration(
-              color: cardColor,
-
-              borderRadius:
-              BorderRadius.circular(20),
-            ),
-
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-
-              children: [
-
-                Row(
-                  children: [
-
-                    const Icon(
-                      Icons.volume_up_outlined,
-                      color: primaryColor,
+            // ==================================================
+            // PROFILE IMAGE
+            // ==================================================
+
+            Container(
+              width: 110,
+              height: 110,
+
+              decoration:
+              BoxDecoration(
+                shape:
+                BoxShape.circle,
+
+                color:
+                primaryColor,
+
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor
+                        .withValues(
+                      alpha: 0.25,
                     ),
 
-                    const SizedBox(width: 10),
+                    blurRadius: 15,
 
-                    Expanded(
-                      child: Text(
-                        'Volume',
-
-                        style: TextStyle(
-                          fontWeight:
-                          FontWeight.w600,
-                          color: headingColor,
-                        ),
-                      ),
+                    offset:
+                    const Offset(
+                      0,
+                      6,
                     ),
-
-                    Text(
-                      '${notificationVolume.round()}%',
-
-                      style: const TextStyle(
-                        color: primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // ==================================================
-                // SLIDER
-                // ==================================================
-
-                Slider(
-                  value: notificationVolume,
-
-                  min: 0,
-
-                  max: 100,
-
-                  divisions: 10,
-
-                  activeColor: primaryColor,
-
-                  inactiveColor: lightCoral,
-
-                  label:
-                  '${notificationVolume.round()}%',
-
-                  onChanged: (value) {
-                    setState(() {
-                      notificationVolume = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // ==================================================
-          // MORE
-          // ==================================================
-
-          Text(
-            'More',
-
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: headingColor,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // ==================================================
-          // DARK MODE
-          // ==================================================
-
-          Container(
-            margin:
-            const EdgeInsets.only(bottom: 12),
-
-            decoration: BoxDecoration(
-              color: cardColor,
-
-              borderRadius:
-              BorderRadius.circular(18),
-            ),
-
-            child: SwitchListTile(
-              value: widget.isDarkMode,
-
-              activeColor: primaryColor,
-
-              secondary: Icon(
-                widget.isDarkMode
-                    ? Icons.dark_mode
-                    : Icons.light_mode_outlined,
-
-                color: primaryColor,
+                  ),
+                ],
               ),
 
-              title: Text(
-                'Dark Mode',
+              child: const Icon(
+                Icons.person,
 
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: headingColor,
+                size: 60,
+
+                color: Colors.white,
+              ),
+            ),
+
+            const SizedBox(
+              height: 18,
+            ),
+
+            // ==================================================
+            // USER NAME
+            // ==================================================
+
+            Text(
+              user.name,
+
+              textAlign:
+              TextAlign.center,
+
+              style: TextStyle(
+                fontSize: 25,
+
+                fontWeight:
+                FontWeight.bold,
+
+                color:
+                colors.onSurface,
+              ),
+            ),
+
+            const SizedBox(
+              height: 5,
+            ),
+
+            // ==================================================
+            // USER EMAIL
+            // ==================================================
+
+            Text(
+              user.email,
+
+              style: TextStyle(
+                fontSize: 15,
+
+                color: colors
+                    .onSurface
+                    .withValues(
+                  alpha: 0.6,
                 ),
               ),
+            ),
 
-              subtitle: Text(
-                widget.isDarkMode
-                    ? 'Dark mode is enabled'
-                    : 'Use light mode',
+            const SizedBox(
+              height: 15,
+            ),
 
-                style: TextStyle(
-                  color: bodyTextColor,
-                ),
-              ),
+            // ==================================================
+            // EDIT PROFILE BUTTON
+            // ==================================================
 
-              onChanged: (value) {
-                widget.onDarkModeChanged(value);
+            OutlinedButton.icon(
+              onPressed: () {
+                _showEditProfileDialog(
+                  context,
+                  ref,
+                  user.name,
+                  user.email,
+                );
               },
-            ),
-          ),
 
-          // ==================================================
-          // SETTINGS
-          // ==================================================
-
-          profileOption(
-            Icons.settings_outlined,
-            'Settings',
-            'Manage app preferences',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          // ==================================================
-          // HELP
-          // ==================================================
-
-          profileOption(
-            Icons.help_outline,
-            'Help & Support',
-            'Get help with your orders',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          // ==================================================
-          // ABOUT
-          // ==================================================
-
-          profileOption(
-            Icons.info_outline,
-            'About Droply',
-            'Version 1.0.0',
-            cardColor,
-            headingColor,
-            bodyTextColor,
-          ),
-
-          const SizedBox(height: 15),
-
-          // ==================================================
-          // LOGOUT
-          // ==================================================
-
-          Container(
-            decoration: BoxDecoration(
-              color: cardColor,
-
-              borderRadius:
-              BorderRadius.circular(18),
-            ),
-
-            child: ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: Colors.red,
+              icon: const Icon(
+                Icons.edit_outlined,
               ),
 
-              title: const Text(
-                'Logout',
+              label: const Text(
+                'Edit Profile',
+              ),
 
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.w600,
+              style:
+              OutlinedButton.styleFrom(
+                foregroundColor:
+                primaryColor,
+
+                side:
+                const BorderSide(
+                  color:
+                  primaryColor,
+                ),
+
+                shape:
+                RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(
+                    12,
+                  ),
                 ),
               ),
+            ),
 
-              onTap: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Logout clicked',
-                    ),
-                    backgroundColor:
-                    primaryColor,
-                  ),
+            const SizedBox(
+              height: 30,
+            ),
+
+            // ==================================================
+            // PROFILE OPTIONS
+            // ==================================================
+
+            _profileOption(
+              context,
+              Icons.person_outline,
+              'Personal Information',
+                  () {
+                _showEditProfileDialog(
+                  context,
+                  ref,
+                  user.name,
+                  user.email,
                 );
               },
             ),
-          ),
 
-          const SizedBox(height: 30),
-        ],
+            _profileOption(
+              context,
+              Icons.location_on_outlined,
+              'Saved Addresses',
+                  () {},
+            ),
+
+            _profileOption(
+              context,
+              Icons.notifications_none,
+              'Notifications',
+                  () {},
+            ),
+
+            // ==================================================
+            // DARK MODE
+            // ==================================================
+
+            Container(
+              width:
+              double.infinity,
+
+              margin:
+              const EdgeInsets.only(
+                bottom: 12,
+              ),
+
+              decoration:
+              BoxDecoration(
+                color:
+                colors.surface,
+
+                borderRadius:
+                BorderRadius.circular(
+                  15,
+                ),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black
+                        .withValues(
+                      alpha:
+                      theme.brightness ==
+                          Brightness.dark
+                          ? 0.25
+                          : 0.06,
+                    ),
+
+                    blurRadius: 7,
+
+                    offset:
+                    const Offset(
+                      0,
+                      3,
+                    ),
+                  ),
+                ],
+              ),
+
+              child:
+              SwitchListTile(
+                secondary: Icon(
+                  isDarkMode
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+
+                  color:
+                  primaryColor,
+                ),
+
+                title: Text(
+                  'Dark Mode',
+
+                  style: TextStyle(
+                    color:
+                    colors.onSurface,
+
+                    fontWeight:
+                    FontWeight.w600,
+                  ),
+                ),
+
+                subtitle: Text(
+                  isDarkMode
+                      ? 'Dark theme enabled'
+                      : 'Light theme enabled',
+
+                  style: TextStyle(
+                    color: colors
+                        .onSurface
+                        .withValues(
+                      alpha: 0.6,
+                    ),
+                  ),
+                ),
+
+                value:
+                isDarkMode,
+
+                activeThumbColor:
+                primaryColor,
+
+                onChanged:
+                    (value) {
+                  ref
+                      .read(
+                    themeProvider
+                        .notifier,
+                  )
+                      .toggleTheme();
+                },
+              ),
+            ),
+
+            _profileOption(
+              context,
+              Icons.settings_outlined,
+              'Settings',
+                  () {},
+            ),
+
+            _profileOption(
+              context,
+              Icons.help_outline,
+              'Help & Support',
+                  () {},
+            ),
+
+            // ==================================================
+            // LOGOUT
+            // ==================================================
+
+            _profileOption(
+              context,
+              Icons.logout,
+              'Logout',
+                  () {
+                _showLogoutDialog(
+                  context,
+                  ref,
+                );
+              },
+              isLogout: true,
+            ),
+
+            const SizedBox(
+              height: 20,
+            ),
+
+            Text(
+              'Droply • Food delivered with love ❤️',
+
+              style: TextStyle(
+                fontSize: 12,
+
+                color: colors
+                    .onSurface
+                    .withValues(
+                  alpha: 0.45,
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -689,89 +406,375 @@ class _ProfilePageState extends State<ProfilePage> {
   // PROFILE OPTION
   // ==========================================================
 
-  Widget profileOption(
+  static Widget _profileOption(
+      BuildContext context,
       IconData icon,
       String title,
-      String subtitle,
-      Color cardColor,
-      Color headingColor,
-      Color bodyTextColor,
-      ) {
-    return Container(
-      margin:
-      const EdgeInsets.only(bottom: 12),
+      VoidCallback onTap, {
+        bool isLogout = false,
+      }) {
+    final colors =
+        Theme.of(context)
+            .colorScheme;
 
-      decoration: BoxDecoration(
-        color: cardColor,
+    return Container(
+      width:
+      double.infinity,
+
+      margin:
+      const EdgeInsets.only(
+        bottom: 12,
+      ),
+
+      decoration:
+      BoxDecoration(
+        color:
+        colors.surface,
 
         borderRadius:
-        BorderRadius.circular(18),
+        BorderRadius.circular(
+          15,
+        ),
 
         boxShadow: [
           BoxShadow(
-            color:
-            Colors.black.withOpacity(0.04),
+            color: Colors.black
+                .withValues(
+              alpha:
+              Theme.of(context)
+                  .brightness ==
+                  Brightness.dark
+                  ? 0.25
+                  : 0.06,
+            ),
 
-            blurRadius: 8,
+            blurRadius: 7,
 
-            offset: const Offset(0, 3),
+            offset:
+            const Offset(
+              0,
+              3,
+            ),
           ),
         ],
       ),
 
       child: ListTile(
-        contentPadding:
-        const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 5,
-        ),
+        onTap: onTap,
 
-        leading: Container(
-          width: 45,
-          height: 45,
+        leading: Icon(
+          icon,
 
-          decoration: BoxDecoration(
-            color: lightCoral,
-
-            borderRadius:
-            BorderRadius.circular(13),
-          ),
-
-          child: Icon(
-            icon,
-            color: primaryColor,
-          ),
+          color: isLogout
+              ? Colors.red
+              : primaryColor,
         ),
 
         title: Text(
           title,
 
           style: TextStyle(
-            color: headingColor,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+            color: isLogout
+                ? Colors.red
+                : colors.onSurface,
 
-        subtitle: Text(
-          subtitle,
-
-          style: TextStyle(
-            color: bodyTextColor,
-            fontSize: 12,
+            fontWeight:
+            FontWeight.w600,
           ),
         ),
 
         trailing: Icon(
           Icons.arrow_forward_ios,
-          size: 15,
-          color:
-          widget.isDarkMode
-              ? Colors.white54
-              : Colors.grey,
-        ),
 
-        onTap: () {},
+          size: 16,
+
+          color: colors
+              .onSurface
+              .withValues(
+            alpha: 0.45,
+          ),
+        ),
       ),
+    );
+  }
+
+  // ==========================================================
+  // EDIT PROFILE DIALOG
+  // ==========================================================
+
+  static void _showEditProfileDialog(
+      BuildContext context,
+      WidgetRef ref,
+      String currentName,
+      String currentEmail,
+      ) {
+    final nameController =
+    TextEditingController(
+      text: currentName,
+    );
+
+    final emailController =
+    TextEditingController(
+      text: currentEmail,
+    );
+
+    showDialog(
+      context: context,
+
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Edit Profile',
+          ),
+
+          content:
+          SingleChildScrollView(
+            child: Column(
+              mainAxisSize:
+              MainAxisSize.min,
+
+              children: [
+                TextField(
+                  controller:
+                  nameController,
+
+                  textCapitalization:
+                  TextCapitalization
+                      .words,
+
+                  decoration:
+                  const InputDecoration(
+                    labelText:
+                    'Name',
+
+                    prefixIcon:
+                    Icon(
+                      Icons.person_outline,
+                    ),
+
+                    border:
+                    OutlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 15,
+                ),
+
+                TextField(
+                  controller:
+                  emailController,
+
+                  keyboardType:
+                  TextInputType
+                      .emailAddress,
+
+                  decoration:
+                  const InputDecoration(
+                    labelText:
+                    'Email',
+
+                    prefixIcon:
+                    Icon(
+                      Icons.email_outlined,
+                    ),
+
+                    border:
+                    OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  dialogContext,
+                );
+              },
+
+              child:
+              const Text(
+                'Cancel',
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                final name =
+                nameController.text
+                    .trim();
+
+                final email =
+                emailController.text
+                    .trim();
+
+                if (name.isEmpty ||
+                    email.isEmpty) {
+                  ScaffoldMessenger
+                      .of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Please enter name and email',
+                      ),
+
+                      backgroundColor:
+                      primaryColor,
+                    ),
+                  );
+
+                  return;
+                }
+
+                await ref
+                    .read(
+                  userProvider
+                      .notifier,
+                )
+                    .saveUser(
+                  name: name,
+                  email: email,
+                );
+
+                if (!dialogContext
+                    .mounted) {
+                  return;
+                }
+
+                Navigator.pop(
+                  dialogContext,
+                );
+
+                ScaffoldMessenger
+                    .of(context)
+                    .showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Profile updated successfully',
+                    ),
+
+                    backgroundColor:
+                    primaryColor,
+                  ),
+                );
+              },
+
+              style:
+              ElevatedButton.styleFrom(
+                backgroundColor:
+                primaryColor,
+
+                foregroundColor:
+                Colors.white,
+              ),
+
+              child:
+              const Text(
+                'Save',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ==========================================================
+  // LOGOUT DIALOG
+  // ==========================================================
+
+  static void _showLogoutDialog(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    showDialog(
+      context: context,
+
+      builder: (dialogContext) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.logout,
+
+            color:
+            primaryColor,
+
+            size: 40,
+          ),
+
+          title: const Text(
+            'Logout?',
+          ),
+
+          content: const Text(
+            'Do you want to remove your saved profile details?',
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  dialogContext,
+                );
+              },
+
+              child:
+              const Text(
+                'Cancel',
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                await ref
+                    .read(
+                  userProvider
+                      .notifier,
+                )
+                    .logout();
+
+                if (!dialogContext
+                    .mounted) {
+                  return;
+                }
+
+                Navigator.pop(
+                  dialogContext,
+                );
+
+                ScaffoldMessenger
+                    .of(context)
+                    .showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Profile details cleared',
+                    ),
+
+                    backgroundColor:
+                    primaryColor,
+                  ),
+                );
+              },
+
+              style:
+              ElevatedButton.styleFrom(
+                backgroundColor:
+                Colors.red,
+
+                foregroundColor:
+                Colors.white,
+              ),
+
+              child:
+              const Text(
+                'Logout',
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

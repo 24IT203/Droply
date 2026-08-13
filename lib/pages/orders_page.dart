@@ -8,16 +8,12 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-
   // ==========================================================
-  // COLORS
+  // DROPly BRAND COLORS
   // ==========================================================
 
   static const Color primaryColor = Color(0xFFFF5A5F);
-  static const Color darkColor = Color(0xFF202124);
-  static const Color creamColor = Color(0xFFFFF8F3);
   static const Color lightCoral = Color(0xFFFFE8E8);
-  static const Color textColor = Color(0xFF555555);
 
   // ==========================================================
   // STATE
@@ -62,12 +58,20 @@ class _OrdersPageState extends State<OrdersPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: creamColor,
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
-      // ======================================================
+    return Scaffold(
+      // ========================================================
+      // THEME-AWARE BACKGROUND
+      // ========================================================
+
+      backgroundColor:
+      theme.scaffoldBackgroundColor,
+
+      // ========================================================
       // APP BAR
-      // ======================================================
+      // ========================================================
 
       appBar: AppBar(
         backgroundColor: primaryColor,
@@ -95,9 +99,9 @@ class _OrdersPageState extends State<OrdersPage> {
         ],
       ),
 
-      // ======================================================
+      // ========================================================
       // ORDERS
-      // ======================================================
+      // ========================================================
 
       body: ListView(
         physics: const ClampingScrollPhysics(),
@@ -105,42 +109,50 @@ class _OrdersPageState extends State<OrdersPage> {
         padding: const EdgeInsets.all(20),
 
         children: [
-
-          // ==================================================
+          // ======================================================
           // ACTIVE ORDER
-          // ==================================================
+          // ======================================================
 
-          const Text(
+          Text(
             'Active Order',
+
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: darkColor,
+              color: colors.onSurface,
             ),
           ),
 
           const SizedBox(height: 15),
 
-          // ==================================================
+          // ======================================================
           // ACTIVE ORDER CARD
-          // ==================================================
+          // ======================================================
 
           Container(
             padding: const EdgeInsets.all(18),
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              // THEME-AWARE CARD
+              color: colors.surface,
 
               borderRadius:
               BorderRadius.circular(22),
 
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(
+                    alpha:
+                    theme.brightness ==
+                        Brightness.dark
+                        ? 0.25
+                        : 0.06,
+                  ),
 
                   blurRadius: 12,
 
-                  offset: const Offset(0, 4),
+                  offset:
+                  const Offset(0, 4),
                 ),
               ],
             ),
@@ -150,20 +162,23 @@ class _OrdersPageState extends State<OrdersPage> {
               CrossAxisAlignment.start,
 
               children: [
-
-                // ==============================================
+                // ==================================================
                 // RESTAURANT
-                // ==============================================
+                // ==================================================
 
                 Row(
                   children: [
-
                     Container(
                       width: 58,
                       height: 58,
 
                       decoration: BoxDecoration(
-                        color: lightCoral,
+                        color: theme.brightness ==
+                            Brightness.dark
+                            ? primaryColor.withValues(
+                          alpha: 0.18,
+                        )
+                            : lightCoral,
 
                         borderRadius:
                         BorderRadius.circular(16),
@@ -178,29 +193,38 @@ class _OrdersPageState extends State<OrdersPage> {
 
                     const SizedBox(width: 14),
 
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment:
                         CrossAxisAlignment.start,
 
                         children: [
-
                           Text(
                             'Food Express',
+
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: darkColor,
+                              fontWeight:
+                              FontWeight.bold,
+
+                              color:
+                              colors.onSurface,
                             ),
                           ),
 
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
 
                           Text(
                             'Order #DP10245',
+
                             style: TextStyle(
                               fontSize: 13,
-                              color: textColor,
+
+                              color: colors
+                                  .onSurface
+                                  .withValues(
+                                alpha: 0.65,
+                              ),
                             ),
                           ),
                         ],
@@ -215,7 +239,12 @@ class _OrdersPageState extends State<OrdersPage> {
                       ),
 
                       decoration: BoxDecoration(
-                        color: lightCoral,
+                        color: theme.brightness ==
+                            Brightness.dark
+                            ? primaryColor.withValues(
+                          alpha: 0.18,
+                        )
+                            : lightCoral,
 
                         borderRadius:
                         BorderRadius.circular(20),
@@ -228,7 +257,10 @@ class _OrdersPageState extends State<OrdersPage> {
 
                         style: TextStyle(
                           color: isOrderCancelled
-                              ? Colors.grey
+                              ? colors.onSurface
+                              .withValues(
+                            alpha: 0.55,
+                          )
                               : primaryColor,
 
                           fontWeight:
@@ -243,9 +275,9 @@ class _OrdersPageState extends State<OrdersPage> {
 
                 const SizedBox(height: 22),
 
-                // ==============================================
+                // ==================================================
                 // FOOD ITEMS
-                // ==============================================
+                // ==================================================
 
                 foodItem(
                   'Chicken Biryani',
@@ -263,29 +295,35 @@ class _OrdersPageState extends State<OrdersPage> {
                   height: 30,
                 ),
 
-                // ==============================================
+                // ==================================================
                 // TOTAL
-                // ==============================================
+                // ==================================================
 
                 Row(
                   mainAxisAlignment:
                   MainAxisAlignment.spaceBetween,
 
-                  children: const [
-
+                  children: [
                     Text(
                       'Total Amount',
+
                       style: TextStyle(
                         fontSize: 15,
-                        color: textColor,
+
+                        color: colors.onSurface
+                            .withValues(
+                          alpha: 0.65,
+                        ),
                       ),
                     ),
 
-                    Text(
+                    const Text(
                       '₹308',
+
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                        FontWeight.bold,
                         color: primaryColor,
                       ),
                     ),
@@ -294,36 +332,47 @@ class _OrdersPageState extends State<OrdersPage> {
 
                 const SizedBox(height: 20),
 
-                // ==============================================
+                // ==================================================
                 // DELIVERY ADDRESS
-                // ==============================================
+                // ==================================================
 
                 Container(
-                  padding: const EdgeInsets.all(13),
+                  padding:
+                  const EdgeInsets.all(13),
 
                   decoration: BoxDecoration(
-                    color: creamColor,
+                    color: theme.brightness ==
+                        Brightness.dark
+                        ? primaryColor.withValues(
+                      alpha: 0.10,
+                    )
+                        : const Color(
+                      0xFFFFF8F3,
+                    ),
 
                     borderRadius:
                     BorderRadius.circular(14),
                   ),
 
-                  child: const Row(
+                  child: Row(
                     children: [
-
-                      Icon(
+                      const Icon(
                         Icons.location_on_outlined,
                         color: primaryColor,
                       ),
 
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
 
                       Expanded(
                         child: Text(
                           'Delivering to\nAnna Nagar, Chennai',
+
                           style: TextStyle(
                             fontSize: 14,
-                            color: darkColor,
+
+                            color:
+                            colors.onSurface,
+
                             height: 1.4,
                           ),
                         ),
@@ -334,22 +383,25 @@ class _OrdersPageState extends State<OrdersPage> {
 
                 const SizedBox(height: 20),
 
-                // ==============================================
+                // ==================================================
                 // TRACK BUTTON
-                // ==============================================
+                // ==================================================
 
                 if (!isOrderCancelled)
                   SizedBox(
                     width: double.infinity,
 
-                    child: ElevatedButton.icon(
+                    child:
+                    ElevatedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(
                           const SnackBar(
                             content: Text(
                               'Your order is being prepared 🍔',
                             ),
+
                             backgroundColor:
                             primaryColor,
                           ),
@@ -373,32 +425,39 @@ class _OrdersPageState extends State<OrdersPage> {
                         Colors.white,
 
                         padding:
-                        const EdgeInsets.symmetric(
+                        const EdgeInsets
+                            .symmetric(
                           vertical: 15,
                         ),
 
                         shape:
                         RoundedRectangleBorder(
                           borderRadius:
-                          BorderRadius.circular(15),
+                          BorderRadius
+                              .circular(
+                            15,
+                          ),
                         ),
                       ),
                     ),
                   ),
 
-                // ==============================================
+                // ==================================================
                 // CANCEL BUTTON
-                // ==============================================
+                // ==================================================
 
                 if (!isOrderCancelled)
                   TextButton(
-                    onPressed: _cancelOrder,
+                    onPressed:
+                    _cancelOrder,
 
                     child: const Text(
                       'Cancel Order',
+
                       style: TextStyle(
                         color: Colors.red,
-                        fontWeight: FontWeight.w600,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
                     ),
                   ),
@@ -408,16 +467,17 @@ class _OrdersPageState extends State<OrdersPage> {
 
           const SizedBox(height: 30),
 
-          // ==================================================
+          // ======================================================
           // PREVIOUS ORDERS
-          // ==================================================
+          // ======================================================
 
-          const Text(
+          Text(
             'Previous Orders',
+
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: darkColor,
+              color: colors.onSurface,
             ),
           ),
 
@@ -453,40 +513,62 @@ class _OrdersPageState extends State<OrdersPage> {
 
           const SizedBox(height: 30),
 
-          // ==================================================
+          // ======================================================
           // RATE YOUR ORDER
-          // ==================================================
+          // ======================================================
 
-          const Text(
+          Text(
             'Rate your recent order',
+
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: darkColor,
+              color: colors.onSurface,
             ),
           ),
 
           const SizedBox(height: 12),
 
           Container(
-            padding: const EdgeInsets.all(18),
+            padding:
+            const EdgeInsets.all(18),
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
 
               borderRadius:
               BorderRadius.circular(20),
+
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha:
+                    theme.brightness ==
+                        Brightness.dark
+                        ? 0.25
+                        : 0.04,
+                  ),
+
+                  blurRadius: 8,
+
+                  offset:
+                  const Offset(0, 3),
+                ),
+              ],
             ),
 
             child: Column(
               children: [
-
-                const Text(
+                Text(
                   'How was your food?',
+
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: darkColor,
+                    fontWeight:
+                    FontWeight.w600,
+
+                    color:
+                    colors.onSurface,
                   ),
                 ),
 
@@ -499,20 +581,24 @@ class _OrdersPageState extends State<OrdersPage> {
                   children: List.generate(
                     5,
                         (index) {
-
-                      final rating = index + 1;
+                      final rating =
+                          index + 1;
 
                       return IconButton(
                         onPressed: () {
-                          _selectRating(rating);
+                          _selectRating(
+                            rating,
+                          );
                         },
 
                         icon: Icon(
-                          rating <= selectedRating
+                          rating <=
+                              selectedRating
                               ? Icons.star
                               : Icons.star_border,
 
-                          color: const Color(
+                          color:
+                          const Color(
                             0xFFFFB300,
                           ),
 
@@ -526,9 +612,11 @@ class _OrdersPageState extends State<OrdersPage> {
                 if (selectedRating > 0)
                   Text(
                     '$selectedRating/5 stars selected',
+
                     style: const TextStyle(
                       color: primaryColor,
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
               ],
@@ -549,15 +637,22 @@ class _OrdersPageState extends State<OrdersPage> {
       String name,
       String price,
       ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Row(
       children: [
-
         Container(
           width: 42,
           height: 42,
 
           decoration: BoxDecoration(
-            color: lightCoral,
+            color: theme.brightness ==
+                Brightness.dark
+                ? primaryColor.withValues(
+              alpha: 0.18,
+            )
+                : lightCoral,
 
             borderRadius:
             BorderRadius.circular(12),
@@ -576,10 +671,13 @@ class _OrdersPageState extends State<OrdersPage> {
           child: Text(
             name,
 
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: darkColor,
+              fontWeight:
+              FontWeight.w600,
+
+              color:
+              colors.onSurface,
             ),
           ),
         ),
@@ -587,9 +685,13 @@ class _OrdersPageState extends State<OrdersPage> {
         Text(
           price,
 
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: textColor,
+
+            color: colors.onSurface
+                .withValues(
+              alpha: 0.65,
+            ),
           ),
         ),
       ],
@@ -607,35 +709,50 @@ class _OrdersPageState extends State<OrdersPage> {
       String status,
       IconData icon,
       ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding:
+      const EdgeInsets.all(15),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
 
         borderRadius:
         BorderRadius.circular(18),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(
+              alpha:
+              theme.brightness ==
+                  Brightness.dark
+                  ? 0.25
+                  : 0.04,
+            ),
 
             blurRadius: 8,
 
-            offset: const Offset(0, 3),
+            offset:
+            const Offset(0, 3),
           ),
         ],
       ),
 
       child: Row(
         children: [
-
           Container(
             width: 60,
             height: 60,
 
             decoration: BoxDecoration(
-              color: lightCoral,
+              color: theme.brightness ==
+                  Brightness.dark
+                  ? primaryColor.withValues(
+                alpha: 0.18,
+              )
+                  : lightCoral,
 
               borderRadius:
               BorderRadius.circular(15),
@@ -658,14 +775,16 @@ class _OrdersPageState extends State<OrdersPage> {
               CrossAxisAlignment.start,
 
               children: [
-
                 Text(
                   foodName,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: darkColor,
+                    fontWeight:
+                    FontWeight.bold,
+
+                    color:
+                    colors.onSurface,
                   ),
                 ),
 
@@ -674,19 +793,30 @@ class _OrdersPageState extends State<OrdersPage> {
                 Text(
                   restaurant,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: textColor,
+
+                    color: colors
+                        .onSurface
+                        .withValues(
+                      alpha: 0.65,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 5),
 
+                const Text(
+                  '',
+                ),
+
                 Text(
                   price,
 
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                    FontWeight.bold,
+
                     color: primaryColor,
                   ),
                 ),
@@ -699,7 +829,6 @@ class _OrdersPageState extends State<OrdersPage> {
             CrossAxisAlignment.end,
 
             children: [
-
               const Icon(
                 Icons.check_circle,
                 color: Colors.green,
@@ -714,7 +843,8 @@ class _OrdersPageState extends State<OrdersPage> {
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.green,
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                  FontWeight.w600,
                 ),
               ),
             ],

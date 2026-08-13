@@ -1,45 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'pages/home_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/profile_page.dart';
+import 'providers/theme_provider.dart';
 
 void main() {
-  runApp(const DroplyApp());
+  runApp(
+    const ProviderScope(
+      child: DroplyApp(),
+    ),
+  );
 }
 
 // ============================================================
 // DROPly APP
 // ============================================================
 
-class DroplyApp extends StatefulWidget {
+class DroplyApp extends ConsumerWidget {
   const DroplyApp({super.key});
 
   @override
-  State<DroplyApp> createState() => _DroplyAppState();
-}
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    // ========================================================
+    // RIVERPOD THEME
+    // ========================================================
 
-class _DroplyAppState extends State<DroplyApp> {
+    final themeMode =
+    ref.watch(themeProvider);
 
-  // ==========================================================
-  // DAY 4 - DARK MODE STATE
-  // ==========================================================
-
-  bool _isDarkMode = false;
-
-  // ==========================================================
-  // CHANGE DARK MODE
-  // ==========================================================
-
-  void _changeDarkMode(bool value) {
-    setState(() {
-      _isDarkMode = value;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Droply',
 
@@ -50,14 +45,32 @@ class _DroplyAppState extends State<DroplyApp> {
       // ======================================================
 
       theme: ThemeData(
-        brightness: Brightness.light,
+        brightness:
+        Brightness.light,
 
         scaffoldBackgroundColor:
         const Color(0xFFFFF8F3),
 
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF5A5F),
-          brightness: Brightness.light,
+        colorScheme:
+        ColorScheme.fromSeed(
+          seedColor:
+          const Color(0xFFFF5A5F),
+
+          brightness:
+          Brightness.light,
+        ),
+
+        // ====================================================
+        // GOOGLE FONT
+        // ====================================================
+
+        textTheme:
+        GoogleFonts.poppinsTextTheme(),
+
+        appBarTheme:
+        const AppBarTheme(
+          elevation: 0,
+          centerTitle: false,
         ),
 
         useMaterial3: true,
@@ -68,35 +81,52 @@ class _DroplyAppState extends State<DroplyApp> {
       // ======================================================
 
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
+        brightness:
+        Brightness.dark,
 
         scaffoldBackgroundColor:
         const Color(0xFF121212),
 
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF5A5F),
-          brightness: Brightness.dark,
+        colorScheme:
+        ColorScheme.fromSeed(
+          seedColor:
+          const Color(0xFFFF5A5F),
+
+          brightness:
+          Brightness.dark,
+        ),
+
+        // ====================================================
+        // GOOGLE FONT
+        // ====================================================
+
+        textTheme:
+        GoogleFonts.poppinsTextTheme(
+          ThemeData.dark().textTheme,
+        ),
+
+        appBarTheme:
+        const AppBarTheme(
+          elevation: 0,
+          centerTitle: false,
         ),
 
         useMaterial3: true,
       ),
 
       // ======================================================
-      // SELECT THEME
+      // RIVERPOD CONTROLS THEME
       // ======================================================
 
-      themeMode: _isDarkMode
-          ? ThemeMode.dark
-          : ThemeMode.light,
+      themeMode:
+      themeMode,
 
       // ======================================================
-      // NAVIGATION
+      // MAIN NAVIGATION
       // ======================================================
 
-      home: DroplyNavigation(
-        isDarkMode: _isDarkMode,
-        onDarkModeChanged: _changeDarkMode,
-      ),
+      home:
+      const DroplyNavigation(),
     );
   }
 }
@@ -105,49 +135,44 @@ class _DroplyAppState extends State<DroplyApp> {
 // MAIN NAVIGATION
 // ============================================================
 
-class DroplyNavigation extends StatefulWidget {
-
-  final bool isDarkMode;
-
-  final ValueChanged<bool> onDarkModeChanged;
-
+class DroplyNavigation
+    extends StatefulWidget {
   const DroplyNavigation({
     super.key,
-    required this.isDarkMode,
-    required this.onDarkModeChanged,
   });
 
   @override
-  State<DroplyNavigation> createState() =>
+  State<DroplyNavigation>
+  createState() =>
       _DroplyNavigationState();
 }
 
 class _DroplyNavigationState
     extends State<DroplyNavigation> {
-
   int selectedIndex = 0;
 
+  // ==========================================================
+  // ALL PAGES
+  // ==========================================================
+
+  final List<Widget> pages = const [
+    HomePage(),
+    OrdersPage(),
+    ProfilePage(),
+  ];
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
 
     // ========================================================
-    // ALL PAGES
+    // MAIN SCAFFOLD
     // ========================================================
-
-    final List<Widget> pages = [
-      const HomePage(),
-
-      const OrdersPage(),
-
-      ProfilePage(
-        isDarkMode: widget.isDarkMode,
-        onDarkModeChanged:
-        widget.onDarkModeChanged,
-      ),
-    ];
 
     return Scaffold(
-
       // ======================================================
       // PAGE CONTENT
       // ======================================================
@@ -158,31 +183,35 @@ class _DroplyNavigationState
       ),
 
       // ======================================================
-      // STYLISH BOTTOM NAVIGATION BAR
+      // BOTTOM NAVIGATION
       // ======================================================
 
-      bottomNavigationBar: StylishBottomBar(
-
-        option: AnimatedBarOptions(
+      bottomNavigationBar:
+      StylishBottomBar(
+        option:
+        AnimatedBarOptions(
           iconSize: 28,
 
-          barAnimation: BarAnimation.fade,
+          barAnimation:
+          BarAnimation.fade,
 
-          iconStyle: IconStyle.Default,
+          iconStyle:
+          IconStyle.Default,
 
           opacity: 0.3,
         ),
 
-        currentIndex: selectedIndex,
+        currentIndex:
+        selectedIndex,
 
-        // Changes automatically with dark mode
+        // Automatically changes
+        // according to dark/light mode
         backgroundColor:
-        Theme.of(context).scaffoldBackgroundColor,
+        theme.colorScheme.surface,
 
         elevation: 8,
 
         items: [
-
           // ==================================================
           // HOME
           // ==================================================
@@ -192,7 +221,8 @@ class _DroplyNavigationState
               Icons.home_outlined,
             ),
 
-            selectedIcon: const Icon(
+            selectedIcon:
+            const Icon(
               Icons.home,
             ),
 
@@ -201,7 +231,9 @@ class _DroplyNavigationState
             ),
 
             backgroundColor:
-            const Color(0xFFFF5A5F),
+            const Color(
+              0xFFFF5A5F,
+            ),
           ),
 
           // ==================================================
@@ -210,10 +242,12 @@ class _DroplyNavigationState
 
           BottomBarItem(
             icon: const Icon(
-              Icons.inventory_2_outlined,
+              Icons
+                  .inventory_2_outlined,
             ),
 
-            selectedIcon: const Icon(
+            selectedIcon:
+            const Icon(
               Icons.inventory_2,
             ),
 
@@ -222,7 +256,9 @@ class _DroplyNavigationState
             ),
 
             backgroundColor:
-            const Color(0xFFFF5A5F),
+            const Color(
+              0xFFFF5A5F,
+            ),
           ),
 
           // ==================================================
@@ -234,7 +270,8 @@ class _DroplyNavigationState
               Icons.person_outline,
             ),
 
-            selectedIcon: const Icon(
+            selectedIcon:
+            const Icon(
               Icons.person,
             ),
 
@@ -243,7 +280,9 @@ class _DroplyNavigationState
             ),
 
             backgroundColor:
-            const Color(0xFFFF5A5F),
+            const Color(
+              0xFFFF5A5F,
+            ),
           ),
         ],
 
@@ -252,11 +291,10 @@ class _DroplyNavigationState
         // ======================================================
 
         onTap: (index) {
-
           setState(() {
-            selectedIndex = index;
+            selectedIndex =
+                index;
           });
-
         },
       ),
     );

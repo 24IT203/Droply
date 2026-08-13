@@ -1,44 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
+import '../providers/food_provider.dart';
+import '../providers/cart_provider.dart';
+import '../widgets/food_card.dart';
+import 'cart_page.dart';
+
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() =>
+      _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-
-  // ==========================================================
-  // COLORS
-  // ==========================================================
-
+class _HomePageState extends ConsumerState<HomePage> {
   static const Color primaryColor = Color(0xFFFF5A5F);
-  static const Color darkColor = Color(0xFF202124);
-  static const Color creamColor = Color(0xFFFFF8F3);
   static const Color lightCoral = Color(0xFFFFE8E8);
-  static const Color secondaryColor = Color(0xFFFF9F43);
-  static const Color textColor = Color(0xFF555555);
-
-  // ==========================================================
-  // DAY 4 - STATE
-  // ==========================================================
 
   String selectedCategory = 'All';
-
   String selectedDeliveryType = 'Standard';
-
-  // ==========================================================
-  // DAY 4 - TEXT EDITING CONTROLLER
-  // ==========================================================
-
-  late final TextEditingController _searchController;
-
   String searchText = '';
 
-  // ==========================================================
-  // FOOD CATEGORIES
-  // ==========================================================
+  late final TextEditingController _searchController;
 
   final List<String> categories = [
     'All',
@@ -49,29 +33,15 @@ class _HomePageState extends State<HomePage> {
     'Desserts',
   ];
 
-  // ==========================================================
-  // INIT STATE
-  // ==========================================================
-
   @override
   void initState() {
     super.initState();
-
     _searchController = TextEditingController();
-
-    debugPrint('HomePage initState called');
   }
-
-  // ==========================================================
-  // DISPOSE
-  // ==========================================================
 
   @override
   void dispose() {
     _searchController.dispose();
-
-    debugPrint('HomePage disposed');
-
     super.dispose();
   }
 
@@ -86,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ==========================================================
-  // CATEGORY SELECTION
+  // CATEGORY
   // ==========================================================
 
   void _selectCategory(String category) {
@@ -113,25 +83,60 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
-    debugPrint(
-      'HomePage build - category: $selectedCategory',
-    );
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    // ========================================================
+    // RIVERPOD FOOD DATA
+    // ========================================================
+
+    final foods = ref.watch(foodProvider);
+
+    // ========================================================
+    // FILTER FOOD
+    // ========================================================
+
+    final filteredFoods = foods.where((food) {
+      final categoryMatches =
+          selectedCategory == 'All' ||
+              food.category == selectedCategory;
+
+      final query =
+      searchText.trim().toLowerCase();
+
+      final searchMatches =
+          query.isEmpty ||
+              food.name
+                  .toLowerCase()
+                  .contains(query) ||
+              food.category
+                  .toLowerCase()
+                  .contains(query) ||
+              food.restaurant
+                  .toLowerCase()
+                  .contains(query);
+
+      return categoryMatches && searchMatches;
+    }).toList();
 
     return Scaffold(
-      backgroundColor: creamColor,
+      backgroundColor:
+      theme.scaffoldBackgroundColor,
 
-      // ======================================================
+      // ========================================================
       // APP BAR
-      // ======================================================
+      // ========================================================
 
       appBar: AppBar(
         backgroundColor: primaryColor,
-
         elevation: 0,
 
         title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
           children: [
             Text(
               'Droply',
@@ -141,7 +146,6 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             Text(
               'Food delivered with love ❤️',
               style: TextStyle(
@@ -153,45 +157,104 @@ class _HomePageState extends State<HomePage> {
         ),
 
         actions: [
-          IconButton(
-            onPressed: () {},
+          // ====================================================
+          // CART
+          // ====================================================
 
-            icon: const Icon(
-              Icons.notifications_none,
-              color: Colors.white,
-            ),
+          Consumer(
+            builder: (
+                context,
+                ref,
+                child,
+                ) {
+              final cart =
+              ref.watch(cartProvider);
+
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const CartPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
+
+                  if (cart.isNotEmpty)
+                    Positioned(
+                      right: 5,
+                      top: 5,
+                      child: Container(
+                        padding:
+                        const EdgeInsets.all(4),
+                        constraints:
+                        const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        decoration:
+                        const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${cart.length}',
+                          textAlign:
+                          TextAlign.center,
+                          style:
+                          const TextStyle(
+                            color: primaryColor,
+                            fontSize: 10,
+                            fontWeight:
+                            FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
 
-          const SizedBox(width: 5),
+          const SizedBox(width: 8),
         ],
       ),
 
-      // ======================================================
-      // HOME CONTENT
-      // ======================================================
+      // ========================================================
+      // BODY
+      // ========================================================
 
       body: ListView(
-        physics: const ClampingScrollPhysics(),
-
-        padding: const EdgeInsets.all(20),
-
+        padding:
+        const EdgeInsets.all(20),
         children: [
-
-          // ==================================================
+          // ======================================================
           // LOCATION
-          // ==================================================
+          // ======================================================
 
           Row(
             children: [
-
               Container(
-                padding: const EdgeInsets.all(9),
-
-                decoration: BoxDecoration(
-                  color: lightCoral,
-                  borderRadius: BorderRadius.circular(12),
+                padding:
+                const EdgeInsets.all(9),
+                decoration:
+                BoxDecoration(
+                  color: isDark
+                      ? primaryColor
+                      .withValues(alpha: 0.18)
+                      : lightCoral,
+                  borderRadius:
+                  BorderRadius.circular(12),
                 ),
-
                 child: const Icon(
                   Icons.location_on,
                   color: primaryColor,
@@ -201,26 +264,27 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(width: 10),
 
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     'Delivering to',
                     style: TextStyle(
                       fontSize: 12,
-                      color: textColor,
+                      color: colors.onSurface
+                          .withValues(alpha: 0.65),
                     ),
                   ),
-
-                  SizedBox(height: 2),
-
+                  const SizedBox(height: 2),
                   Text(
                     'Anna Nagar, Chennai',
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: darkColor,
+                      fontWeight:
+                      FontWeight.bold,
+                      color:
+                      colors.onSurface,
                     ),
                   ),
                 ],
@@ -228,191 +292,209 @@ class _HomePageState extends State<HomePage> {
 
               const Spacer(),
 
-              const Icon(
+              Icon(
                 Icons.keyboard_arrow_down,
-                color: darkColor,
+                color:
+                colors.onSurface,
               ),
             ],
           ),
 
           const SizedBox(height: 22),
 
-          // ==================================================
-          // WELCOME
-          // ==================================================
+          // ======================================================
+          // GREETING
+          // ======================================================
 
-          const Text(
-            'Hungry, Ananya? 👋',
+          Text(
+            'Hungry? 👋',
             style: TextStyle(
               fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: darkColor,
+              fontWeight:
+              FontWeight.bold,
+              color:
+              colors.onSurface,
             ),
           ),
 
           const SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Find your favourite food and get it delivered.',
             style: TextStyle(
               fontSize: 15,
-              color: textColor,
+              color: colors.onSurface
+                  .withValues(alpha: 0.65),
             ),
           ),
 
           const SizedBox(height: 22),
 
-          // ==================================================
+          // ======================================================
           // SEARCH BAR
-          // ==================================================
+          // ======================================================
 
           Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-
-              borderRadius: BorderRadius.circular(18),
-
+            decoration:
+            BoxDecoration(
+              color: colors.surface,
+              borderRadius:
+              BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black
+                      .withValues(
+                    alpha:
+                    isDark ? 0.25 : 0.06,
+                  ),
                   blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  offset:
+                  const Offset(0, 4),
                 ),
               ],
             ),
-
             child: TextField(
-              controller: _searchController,
-
+              controller:
+              _searchController,
               onChanged: _searchFood,
-
-              decoration: InputDecoration(
-                prefixIcon: const Icon(
+              style: TextStyle(
+                color:
+                colors.onSurface,
+              ),
+              decoration:
+              InputDecoration(
+                prefixIcon:
+                const Icon(
                   Icons.search,
                   color: primaryColor,
                 ),
-
-                hintText: 'Search for food, restaurants...',
-
-                hintStyle: const TextStyle(
-                  color: Colors.grey,
+                hintText:
+                'Search for food, restaurants...',
+                hintStyle: TextStyle(
+                  color: colors.onSurface
+                      .withValues(
+                    alpha: 0.5,
+                  ),
                   fontSize: 14,
                 ),
-
-                suffixIcon: searchText.isNotEmpty
+                suffixIcon:
+                searchText.isNotEmpty
                     ? IconButton(
                   onPressed: () {
-                    _searchController.clear();
+                    _searchController
+                        .clear();
 
                     setState(() {
-                      searchText = '';
+                      searchText =
+                      '';
                     });
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close,
+                    color: colors
+                        .onSurface,
                   ),
                 )
                     : null,
-
-                border: InputBorder.none,
-
-                contentPadding: const EdgeInsets.symmetric(
+                border:
+                InputBorder.none,
+                contentPadding:
+                const EdgeInsets.symmetric(
                   vertical: 17,
                 ),
               ),
             ),
           ),
 
-          // ==================================================
-          // SEARCH PREVIEW
-          // ==================================================
-
-          if (searchText.isNotEmpty) ...[
-            const SizedBox(height: 10),
-
-            Text(
-              'Searching for "$searchText"',
-              style: const TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-
           const SizedBox(height: 28),
 
-          // ==================================================
+          // ======================================================
           // OFFER BANNER
-          // ==================================================
+          // ======================================================
 
           Container(
             height: 150,
-
-            padding: const EdgeInsets.all(20),
-
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
+            padding:
+            const EdgeInsets.all(20),
+            decoration:
+            BoxDecoration(
+              gradient:
+              const LinearGradient(
                 colors: [
                   Color(0xFFFF5A5F),
                   Color(0xFFFF8A65),
                 ],
               ),
-
-              borderRadius: BorderRadius.circular(22),
+              borderRadius:
+              BorderRadius.circular(22),
             ),
-
             child: Row(
               children: [
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
+                    CrossAxisAlignment
+                        .start,
                     mainAxisAlignment:
-                    MainAxisAlignment.center,
-
+                    MainAxisAlignment
+                        .center,
                     children: [
-
                       const Text(
                         'Hungry for a deal?',
                         style: TextStyle(
-                          color: Colors.white,
+                          color:
+                          Colors.white,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                          FontWeight.bold,
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(
+                        height: 6,
+                      ),
 
                       const Text(
                         'Get 30% OFF on your first order',
                         style: TextStyle(
-                          color: Colors.white,
+                          color:
+                          Colors.white,
                           fontSize: 13,
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(
+                        height: 12,
+                      ),
 
                       Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding:
+                        const EdgeInsets
+                            .symmetric(
                           horizontal: 12,
                           vertical: 6,
                         ),
-
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                        decoration:
+                        BoxDecoration(
+                          color:
+                          Colors.white,
                           borderRadius:
-                          BorderRadius.circular(20),
+                          BorderRadius
+                              .circular(
+                            20,
+                          ),
                         ),
-
-                        child: const Text(
+                        child:
+                        const Text(
                           'USE: DROP30',
-                          style: TextStyle(
-                            color: primaryColor,
+                          style:
+                          TextStyle(
+                            color:
+                            primaryColor,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontWeight:
+                            FontWeight
+                                .bold,
                           ),
                         ),
                       ),
@@ -423,7 +505,8 @@ class _HomePageState extends State<HomePage> {
                 const Icon(
                   Icons.fastfood,
                   size: 65,
-                  color: Colors.white,
+                  color:
+                  Colors.white,
                 ),
               ],
             ),
@@ -431,16 +514,18 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(height: 30),
 
-          // ==================================================
+          // ======================================================
           // CATEGORIES
-          // ==================================================
+          // ======================================================
 
-          const Text(
+          Text(
             'What are you craving?',
             style: TextStyle(
               fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: darkColor,
+              fontWeight:
+              FontWeight.bold,
+              color:
+              colors.onSurface,
             ),
           ),
 
@@ -448,63 +533,74 @@ class _HomePageState extends State<HomePage> {
 
           SizedBox(
             height: 48,
-
             child: ListView.separated(
-              scrollDirection: Axis.horizontal,
+              scrollDirection:
+              Axis.horizontal,
+              itemCount:
+              categories.length,
+              separatorBuilder:
+                  (context, index) =>
+              const SizedBox(
+                width: 10,
+              ),
+              itemBuilder:
+                  (context, index) {
+                final category =
+                categories[index];
 
-              itemCount: categories.length,
-
-              separatorBuilder: (context, index) {
-                return const SizedBox(width: 10);
-              },
-
-              itemBuilder: (context, index) {
-
-                final category = categories[index];
-
-                final bool isSelected =
-                    selectedCategory == category;
+                final isSelected =
+                    selectedCategory ==
+                        category;
 
                 return GestureDetector(
                   onTap: () {
-                    _selectCategory(category);
+                    _selectCategory(
+                      category,
+                    );
                   },
-
-                  child: AnimatedContainer(
+                  child:
+                  AnimatedContainer(
                     duration:
-                    const Duration(milliseconds: 200),
-
+                    const Duration(
+                      milliseconds: 200,
+                    ),
                     padding:
-                    const EdgeInsets.symmetric(
+                    const EdgeInsets
+                        .symmetric(
                       horizontal: 18,
                     ),
-
-                    alignment: Alignment.center,
-
-                    decoration: BoxDecoration(
+                    alignment:
+                    Alignment.center,
+                    decoration:
+                    BoxDecoration(
                       color: isSelected
                           ? primaryColor
-                          : Colors.white,
-
+                          : colors.surface,
                       borderRadius:
-                      BorderRadius.circular(25),
-
-                      border: Border.all(
+                      BorderRadius
+                          .circular(
+                        25,
+                      ),
+                      border:
+                      Border.all(
                         color: isSelected
                             ? primaryColor
-                            : Colors.grey.shade200,
+                            : colors
+                            .outline
+                            .withValues(
+                          alpha: 0.25,
+                        ),
                       ),
                     ),
-
                     child: Text(
                       category,
-
                       style: TextStyle(
                         color: isSelected
                             ? Colors.white
-                            : darkColor,
-
-                        fontWeight: FontWeight.w600,
+                            : colors
+                            .onSurface,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
                     ),
                   ),
@@ -515,33 +611,45 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(height: 30),
 
-          // ==================================================
+          // ======================================================
           // POPULAR FOOD
-          // ==================================================
+          // ======================================================
 
           Row(
             mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
-
+            MainAxisAlignment
+                .spaceBetween,
             children: [
-
-              const Text(
+              Text(
                 'Popular near you',
                 style: TextStyle(
                   fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                  color: darkColor,
+                  fontWeight:
+                  FontWeight.bold,
+                  color:
+                  colors.onSurface,
                 ),
               ),
 
               TextButton(
-                onPressed: () {},
-
-                child: const Text(
+                onPressed: () {
+                  setState(() {
+                    selectedCategory =
+                    'All';
+                    searchText = '';
+                    _searchController
+                        .clear();
+                  });
+                },
+                child:
+                const Text(
                   'See all',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
+                  style:
+                  TextStyle(
+                    color:
+                    primaryColor,
+                    fontWeight:
+                    FontWeight.bold,
                   ),
                 ),
               ),
@@ -550,123 +658,225 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(height: 8),
 
-          // ==================================================
-          // FOOD CARDS
-          // ==================================================
+          // ======================================================
+          // DYNAMIC FOOD CARDS
+          // ======================================================
 
-          foodCard(
-            'Cheese Burst Pizza',
-            'Pizza • 25 min',
-            '₹299',
-            Icons.local_pizza,
-          ),
+          if (filteredFoods.isEmpty)
+            Container(
+              padding:
+              const EdgeInsets.all(30),
+              decoration:
+              BoxDecoration(
+                color:
+                colors.surface,
+                borderRadius:
+                BorderRadius.circular(
+                  20,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons
+                        .restaurant_outlined,
+                    size: 55,
+                    color: colors
+                        .onSurface
+                        .withValues(
+                      alpha: 0.4,
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 10,
+                  ),
+
+                  Text(
+                    'No food available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight:
+                      FontWeight.w600,
+                      color:
+                      colors.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...filteredFoods.map(
+                  (food) {
+                return Padding(
+                  padding:
+                  const EdgeInsets
+                      .only(
+                    bottom: 15,
+                  ),
+                  child: FoodCard(
+                    food: food,
+
+                    // ==================================================
+                    // ADD TO CART
+                    // ==================================================
+
+                    onAdd: () {
+                      ref
+                          .read(
+                        cartProvider
+                            .notifier,
+                      )
+                          .addToCart(food);
+
+                      ScaffoldMessenger
+                          .of(
+                        context,
+                      ).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${food.name} added to cart',
+                          ),
+                          backgroundColor:
+                          primaryColor,
+                          duration:
+                          const Duration(
+                            seconds: 2,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
 
           const SizedBox(height: 15),
 
-          foodCard(
-            'Chicken Biryani',
-            'Biryani • 30 min',
-            '₹249',
-            Icons.rice_bowl,
-          ),
+          // ======================================================
+          // DELIVERY SPEED
+          // ======================================================
 
-          const SizedBox(height: 15),
-
-          foodCard(
-            'Classic Burger',
-            'Burger • 20 min',
-            '₹199',
-            Icons.lunch_dining,
-          ),
-
-          const SizedBox(height: 30),
-
-          // ==================================================
-          // DELIVERY TYPE
-          // DAY 4 - RADIO
-          // ==================================================
-
-          const Text(
+          Text(
             'Choose delivery speed',
             style: TextStyle(
               fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: darkColor,
+              fontWeight:
+              FontWeight.bold,
+              color:
+              colors.onSurface,
             ),
           ),
 
           const SizedBox(height: 12),
 
           Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+            decoration:
+            BoxDecoration(
+              color:
+              colors.surface,
+              borderRadius:
+              BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black
+                      .withValues(
+                    alpha:
+                    isDark ? 0.25 : 0.04,
+                  ),
+                  blurRadius: 8,
+                  offset:
+                  const Offset(0, 3),
+                ),
+              ],
             ),
-
             child: Column(
               children: [
-
                 RadioListTile<String>(
                   value: 'Standard',
-
-                  groupValue: selectedDeliveryType,
-
-                  activeColor: primaryColor,
-
-                  title: const Text(
+                  groupValue:
+                  selectedDeliveryType,
+                  activeColor:
+                  primaryColor,
+                  title: Text(
                     'Standard Delivery',
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                      FontWeight.w600,
+                      color:
+                      colors.onSurface,
                     ),
                   ),
-
-                  subtitle: const Text(
+                  subtitle: Text(
                     '30 - 45 minutes',
+                    style: TextStyle(
+                      color: colors
+                          .onSurface
+                          .withValues(
+                        alpha: 0.65,
+                      ),
+                    ),
                   ),
-
-                  onChanged: _selectDeliveryType,
+                  onChanged:
+                  _selectDeliveryType,
                 ),
 
                 RadioListTile<String>(
                   value: 'Express',
-
-                  groupValue: selectedDeliveryType,
-
-                  activeColor: primaryColor,
-
-                  title: const Text(
+                  groupValue:
+                  selectedDeliveryType,
+                  activeColor:
+                  primaryColor,
+                  title: Text(
                     'Express Delivery',
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                      FontWeight.w600,
+                      color:
+                      colors.onSurface,
                     ),
                   ),
-
-                  subtitle: const Text(
+                  subtitle: Text(
                     '15 - 25 minutes',
+                    style: TextStyle(
+                      color: colors
+                          .onSurface
+                          .withValues(
+                        alpha: 0.65,
+                      ),
+                    ),
                   ),
-
-                  onChanged: _selectDeliveryType,
+                  onChanged:
+                  _selectDeliveryType,
                 ),
 
                 RadioListTile<String>(
                   value: 'Priority',
-
-                  groupValue: selectedDeliveryType,
-
-                  activeColor: primaryColor,
-
-                  title: const Text(
+                  groupValue:
+                  selectedDeliveryType,
+                  activeColor:
+                  primaryColor,
+                  title: Text(
                     'Priority Delivery',
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                      FontWeight.w600,
+                      color:
+                      colors.onSurface,
                     ),
                   ),
-
-                  subtitle: const Text(
+                  subtitle: Text(
                     '10 - 15 minutes',
+                    style: TextStyle(
+                      color: colors
+                          .onSurface
+                          .withValues(
+                        alpha: 0.65,
+                      ),
+                    ),
                   ),
-
-                  onChanged: _selectDeliveryType,
+                  onChanged:
+                  _selectDeliveryType,
                 ),
               ],
             ),
@@ -674,37 +884,45 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(height: 20),
 
-          // ==================================================
+          // ======================================================
           // SELECTED DELIVERY
-          // ==================================================
+          // ======================================================
 
           Container(
-            padding: const EdgeInsets.all(18),
-
-            decoration: BoxDecoration(
-              color: lightCoral,
-
+            padding:
+            const EdgeInsets.all(18),
+            decoration:
+            BoxDecoration(
+              color: isDark
+                  ? primaryColor
+                  .withValues(
+                alpha: 0.16,
+              )
+                  : lightCoral,
               borderRadius:
               BorderRadius.circular(18),
             ),
-
             child: Row(
               children: [
-
                 const Icon(
                   Icons.delivery_dining,
-                  color: primaryColor,
+                  color:
+                  primaryColor,
                   size: 30,
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(
+                  width: 12,
+                ),
 
                 Expanded(
                   child: Text(
                     '$selectedDeliveryType delivery selected',
-                    style: const TextStyle(
-                      color: darkColor,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      color:
+                      colors.onSurface,
+                      fontWeight:
+                      FontWeight.bold,
                     ),
                   ),
                 ),
@@ -714,180 +932,65 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(height: 20),
 
-          // ==================================================
-          // TRACK DELIVERY
-          // ==================================================
+          // ======================================================
+          // ORDER NOW
+          // ======================================================
 
           SizedBox(
-            width: double.infinity,
-
-            child: ElevatedButton.icon(
+            width:
+            double.infinity,
+            child:
+            ElevatedButton.icon(
               onPressed: () {
-
-                ScaffoldMessenger.of(context)
+                ScaffoldMessenger
+                    .of(context)
                     .showSnackBar(
                   SnackBar(
                     content: Text(
                       '$selectedDeliveryType delivery selected',
                     ),
-
                     backgroundColor:
                     primaryColor,
                   ),
                 );
               },
-
-              icon: const Icon(
-                Icons.shopping_bag_outlined,
+              icon:
+              const Icon(
+                Icons
+                    .shopping_bag_outlined,
               ),
-
-              label: const Text(
+              label:
+              const Text(
                 'Order Now',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight:
+                  FontWeight.bold,
                 ),
               ),
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-
-                foregroundColor: Colors.white,
-
+              style:
+              ElevatedButton.styleFrom(
+                backgroundColor:
+                primaryColor,
+                foregroundColor:
+                Colors.white,
                 padding:
-                const EdgeInsets.symmetric(
+                const EdgeInsets
+                    .symmetric(
                   vertical: 16,
                 ),
-
-                shape: RoundedRectangleBorder(
+                shape:
+                RoundedRectangleBorder(
                   borderRadius:
-                  BorderRadius.circular(16),
+                  BorderRadius.circular(
+                    16,
+                  ),
                 ),
               ),
             ),
           ),
 
           const SizedBox(height: 30),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================================
-  // FOOD CARD
-  // ==========================================================
-
-  Widget foodCard(
-      String name,
-      String details,
-      String price,
-      IconData icon,
-      ) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-        BorderRadius.circular(20),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-
-            blurRadius: 10,
-
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-
-          // FOOD IMAGE PLACEHOLDER
-          Container(
-            width: 75,
-            height: 75,
-
-            decoration: BoxDecoration(
-              color: lightCoral,
-
-              borderRadius:
-              BorderRadius.circular(16),
-            ),
-
-            child: Icon(
-              icon,
-
-              size: 40,
-
-              color: primaryColor,
-            ),
-          ),
-
-          const SizedBox(width: 15),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-
-              children: [
-
-                Text(
-                  name,
-
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: darkColor,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  details,
-
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: textColor,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  price,
-
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            decoration: BoxDecoration(
-              color: primaryColor,
-              borderRadius:
-              BorderRadius.circular(12),
-            ),
-
-            child: IconButton(
-              onPressed: () {},
-
-              icon: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-            ),
-          ),
         ],
       ),
     );
